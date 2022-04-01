@@ -7,11 +7,14 @@ Original file is located at
     https://colab.research.google.com/drive/1KeQEtCtocjCX40rV_8ychIRsg4dNhl_x
 """
 
+import os
+from tabnanny import verbose
 import tensorflow as tf
 import matplotlib.pyplot as plt
 import pandas as pd
 from sklearn import preprocessing
 from sklearn.model_selection import train_test_split
+from time import time
 
 datas = pd.read_csv("./whites.csv", sep=";")
 datas.info()
@@ -30,8 +33,6 @@ scaler = preprocessing.StandardScaler().fit(x_train)
 x_train_norm = scaler.transform(x_train)
 x_test_norm = scaler.transform(x_test)
 
-print(x_train_norm)
-print(x_test_norm)
 
 # sur apprentissage
 # model = tf.keras.models.Sequential([
@@ -40,59 +41,70 @@ print(x_test_norm)
 #     tf.keras.layers.Dense(50, activation='relu'),
 #     tf.keras.layers.Dense(10)
 # ])
+for i in [4, 8, 12]:
+    # pas mal
+    model = tf.keras.models.Sequential([
+        tf.keras.Input(shape=(11), name='input'),
+        tf.keras.layers.Dense(i, activation='relu'),
+        tf.keras.layers.Dense(i, activation='relu'),
+        tf.keras.layers.Dense(10)
+    ])
 
-# pas mal
-model = tf.keras.models.Sequential([
-    tf.keras.Input(shape=(11), name='input'),
-    tf.keras.layers.Dense(5, activation='relu'),
-    tf.keras.layers.Dense(5, activation='relu'),
-    tf.keras.layers.Dense(10)
-])
+    # loss func for classif
+    # loss_fn = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
 
-# loss func for classif
-loss_fn = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+    # loss func for regression
+    # loss_fn = tf.keras.losses.MeanAbsoluteError()
+    loss_fn = tf.keras.losses.MeanSquaredError()
 
-# loss func for regression
-# loss_fn = tf.keras.losses.MeanSquaredError()
+    model.compile(optimizer='adam', loss=loss_fn, metrics=['accuracy'])
 
-model.compile(optimizer='adam', loss=loss_fn, metrics=['accuracy'])
+    # model.summary()
 
-model.summary()
+    BATCH_SIZE = 100
 
-BATCH_SIZE = 100
+    # La base d'apprentissage
+    dataset = tf.data.Dataset.from_tensor_slices((x_train_norm, y_train))
+    dataset = dataset.shuffle(x_train_norm.shape[0])
+    dataset = dataset.batch(BATCH_SIZE)
 
-# La base d'apprentissage
-dataset = tf.data.Dataset.from_tensor_slices((x_train_norm, y_train))
-dataset = dataset.shuffle(x_train_norm.shape[0])
-dataset = dataset.batch(BATCH_SIZE)
+    train_dataset = dataset
 
-train_dataset = dataset
+    # La base de validation
+    dataset = tf.data.Dataset.from_tensor_slices((x_test_norm, y_test))
+    dataset = dataset.shuffle(x_test_norm.shape[0])
+    dataset = dataset.batch(BATCH_SIZE)
 
-# La base de validation
-dataset = tf.data.Dataset.from_tensor_slices((x_test_norm, y_test))
-dataset = dataset.shuffle(x_test_norm.shape[0])
-dataset = dataset.batch(BATCH_SIZE)
+    test_dataset = dataset
 
-test_dataset = dataset
+    start = time()
+    history = model.fit(
+        train_dataset, validation_data=test_dataset, epochs=200, verbose=0)
+    os.system("cls")
 
-history = model.fit(train_dataset, validation_data=test_dataset, epochs=200)
+    print("Temps d'apprentissage : {:.2f}s".format(time() - start))
 
-# summarize history for accuracy
-plt.plot(history.history['accuracy'])
-plt.plot(history.history['val_accuracy'])
-plt.title('model accuracy')
-plt.ylabel('accuracy')
-plt.xlabel('epoch')
-plt.legend(['train', 'test'], loc='upper left')
-plt.show()
-plt.save("model_accuracy_classif")
+    # summarize history for accuracy
+    plt.plot(history.history['accuracy'])
+    plt.plot(history.history['val_accuracy'])
+    plt.title('model accuracy')
+    plt.ylabel('accuracy')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'test'], loc='upper left')
+    # plt.show()
+    plt.savefig('./images/11-'+str(i)+'-'+str(i) +
+                '/model accuracy (Mean squared error).png')
 
-# summarize history for accuracy
-plt.plot(history.history['loss'])
-plt.plot(history.history['val_loss'])
-plt.title('Fonction de perte (entropie croisee)')
-plt.ylabel('loss')
-plt.xlabel('epoch')
-plt.legend(['train', 'test'], loc='upper left')
-plt.show()
-plt.save("pert_func_classif")
+    plt.clf()
+
+    # summarize history for accuracy
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
+    plt.title('Loss function (Mean squared error)')
+    plt.ylabel('loss')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'test'], loc='upper left')
+    # plt.show()
+    plt.savefig('./images/11-'+str(i)+'-'+str(i) +
+                '/Loss function (Mean squared error).png')
+    plt.clf()
