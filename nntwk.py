@@ -54,8 +54,8 @@ for i in [4, 8, 12, 16, 20]:
     loss_fn = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
 
     # loss func for regression
-    loss_fn = tf.keras.losses.MeanAbsoluteError()
-    loss_fn = tf.keras.losses.MeanSquaredError()
+    # loss_fn = tf.keras.losses.MeanAbsoluteError()
+    # loss_fn = tf.keras.losses.MeanSquaredError()
 
     model.compile(optimizer='adam', loss=loss_fn, metrics=['accuracy'])
 
@@ -93,18 +93,18 @@ for i in [4, 8, 12, 16, 20]:
     plt.legend(['train', 'test'], loc='upper left')
     # plt.show()
     plt.savefig('./images/11-'+str(i)+'-'+str(i) +
-                'model accuracy(Mean squared error).png')
+                '/model accuracy(Crossentropy).png')
 
     plt.clf()
 
     # summarize history for accuracy
     plt.plot(history.history['loss'])
     plt.plot(history.history['val_loss'])
-    plt.title('Loss function (Mean squared error)')
+    plt.title('Loss function (Crossentropy)')
     plt.ylabel('loss')
     plt.xlabel('epoch')
     plt.legend(['train', 'test'], loc='upper left')
     # plt.show()
     plt.savefig('./images/11-'+str(i)+'-'+str(i) +
-                'Loss function(Mean squared error).png')
+                '/Loss function(Cross entropy).png')
     plt.clf()
