@@ -24,12 +24,10 @@ def knn(train_dict, test_dict, i, k):
 
     for n, train_elem in train_dict.items():
         d = getDist(test_elem, train_elem)
-        
+
         if (len(nearest) < k):
             nearest.append((n, d))
         else:
-            
-
 
 
 def main():

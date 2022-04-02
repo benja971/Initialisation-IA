@@ -41,20 +41,20 @@ x_test_norm = scaler.transform(x_test)
 #     tf.keras.layers.Dense(50, activation='relu'),
 #     tf.keras.layers.Dense(10)
 # ])
-for i in [4, 8, 12]:
+for i in [4, 8, 12, 16, 20]:
     # pas mal
     model = tf.keras.models.Sequential([
         tf.keras.Input(shape=(11), name='input'),
         tf.keras.layers.Dense(i, activation='relu'),
         tf.keras.layers.Dense(i, activation='relu'),
-        tf.keras.layers.Dense(10)
+        tf.keras.layers.Dense(1)
     ])
 
     # loss func for classif
-    # loss_fn = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+    loss_fn = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
 
     # loss func for regression
-    # loss_fn = tf.keras.losses.MeanAbsoluteError()
+    loss_fn = tf.keras.losses.MeanAbsoluteError()
     loss_fn = tf.keras.losses.MeanSquaredError()
 
     model.compile(optimizer='adam', loss=loss_fn, metrics=['accuracy'])
@@ -93,7 +93,7 @@ for i in [4, 8, 12]:
     plt.legend(['train', 'test'], loc='upper left')
     # plt.show()
     plt.savefig('./images/11-'+str(i)+'-'+str(i) +
-                '/model accuracy (Mean squared error).png')
+                'model accuracy(Mean squared error).png')
 
     plt.clf()
 
@@ -106,5 +106,5 @@ for i in [4, 8, 12]:
     plt.legend(['train', 'test'], loc='upper left')
     # plt.show()
     plt.savefig('./images/11-'+str(i)+'-'+str(i) +
-                '/Loss function (Mean squared error).png')
+                'Loss function(Mean squared error).png')
     plt.clf()
