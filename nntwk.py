@@ -8,7 +8,6 @@ Original file is located at
 """
 
 import os
-from tabnanny import verbose
 import tensorflow as tf
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -16,13 +15,29 @@ from sklearn import preprocessing
 from sklearn.model_selection import train_test_split
 from time import time
 
+"fixed acidity"
+"volatile acidity"
+"citric acid"
+"residual sugar"
+"chlorides"
+"free sulfur dioxide"
+"total sulfur dioxide"
+"density"
+"pH"
+"sulphates"
+"alcohol"
+"quality"
+
 datas = pd.read_csv("./whites.csv", sep=";")
 datas.info()
 
 datas.quality -= 1
 
 y = datas.quality
-x = datas.drop(['quality'], axis=1)
+# , 'alcohol', 'density', 'free sulfur dioxide'
+x = datas.drop(['quality', 'chlorides', 'citric acid',
+               'pH', 'sulphates'], axis=1)
+
 
 x_train, x_test, y_train, y_test = train_test_split(
     x, y, test_size=0.3, random_state=42)
@@ -41,10 +56,12 @@ x_test_norm = scaler.transform(x_test)
 #     tf.keras.layers.Dense(50, activation='relu'),
 #     tf.keras.layers.Dense(10)
 # ])
+
 for i in [4, 8, 12, 16, 20]:
     # pas mal
     model = tf.keras.models.Sequential([
-        tf.keras.Input(shape=(11), name='input'),
+        tf.keras.Input(shape=(7), name='input'),
+        tf.keras.layers.Dense(i, activation='relu'),
         tf.keras.layers.Dense(i, activation='relu'),
         tf.keras.layers.Dense(i, activation='relu'),
         tf.keras.layers.Dense(1)
@@ -54,8 +71,8 @@ for i in [4, 8, 12, 16, 20]:
     loss_fn = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
 
     # loss func for regression
-    # loss_fn = tf.keras.losses.MeanAbsoluteError()
-    # loss_fn = tf.keras.losses.MeanSquaredError()
+    loss_fn = tf.keras.losses.MeanAbsoluteError()
+    loss_fn = tf.keras.losses.MeanSquaredError()
 
     model.compile(optimizer='adam', loss=loss_fn, metrics=['accuracy'])
 
@@ -82,8 +99,9 @@ for i in [4, 8, 12, 16, 20]:
         train_dataset, validation_data=test_dataset, epochs=200, verbose=0)
     os.system("cls")
 
-    print("Temps d'apprentissage : {:.2f}s".format(time() - start))
+    plt.clf()
 
+    print("Temps d'apprentissage : {:.2f}s".format(time() - start))
     # summarize history for accuracy
     plt.plot(history.history['accuracy'])
     plt.plot(history.history['val_accuracy'])
@@ -92,19 +110,23 @@ for i in [4, 8, 12, 16, 20]:
     plt.xlabel('epoch')
     plt.legend(['train', 'test'], loc='upper left')
     # plt.show()
-    plt.savefig('./images/11-'+str(i)+'-'+str(i) +
-                '/model accuracy(Crossentropy).png')
+    # check if folder exists
+    if not os.path.exists('./images/8-'+str(i)+'-'+str(i) + '-'+str(i)):
+        os.makedirs('./images/8-'+str(i)+'-'+str(i) + '-'+str(i))
+
+    plt.savefig('./images/8-'+str(i)+'-'+str(i) + '-'+str(i) +
+                '/model accuracy(Mean Squared Error).png')
 
     plt.clf()
 
     # summarize history for accuracy
     plt.plot(history.history['loss'])
     plt.plot(history.history['val_loss'])
-    plt.title('Loss function (Crossentropy)')
+    plt.title('Loss function (Mean Squared Error)')
     plt.ylabel('loss')
     plt.xlabel('epoch')
     plt.legend(['train', 'test'], loc='upper left')
     # plt.show()
-    plt.savefig('./images/11-'+str(i)+'-'+str(i) +
-                '/Loss function(Cross entropy).png')
+    plt.savefig('./images/8-'+str(i)+'-'+str(i) + '-'+str(i) +
+                '/Loss function(Mean Squared Error).png')
     plt.clf()
