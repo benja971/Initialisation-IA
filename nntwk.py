@@ -35,8 +35,8 @@ datas.quality -= 1
 
 y = datas.quality
 # , 'alcohol', 'density', 'free sulfur dioxide'
-x = datas.drop(['quality', 'chlorides', 'citric acid',
-               'pH', 'sulphates'], axis=1)
+x = datas.drop(['quality', 'alcohol', 'density',
+               'free sulfur dioxide'], axis=1)
 
 
 x_train, x_test, y_train, y_test = train_test_split(
@@ -49,30 +49,22 @@ x_train_norm = scaler.transform(x_train)
 x_test_norm = scaler.transform(x_test)
 
 
-# sur apprentissage
-# model = tf.keras.models.Sequential([
-#     tf.keras.Input(shape=(11), name='input'),
-#     tf.keras.layers.Dense(50, activation='relu'),
-#     tf.keras.layers.Dense(50, activation='relu'),
-#     tf.keras.layers.Dense(10)
-# ])
-
-for i in [4, 8, 12, 16, 20]:
+for i in [1]:
     # pas mal
     model = tf.keras.models.Sequential([
-        tf.keras.Input(shape=(7), name='input'),
-        tf.keras.layers.Dense(i, activation='relu'),
-        tf.keras.layers.Dense(i, activation='relu'),
-        tf.keras.layers.Dense(i, activation='relu'),
-        tf.keras.layers.Dense(1)
+        tf.keras.Input(shape=(8), name='input'),
+        tf.keras.layers.Dense(8, activation='relu'),
+        tf.keras.layers.Dense(8, activation='relu'),
+        tf.keras.layers.Dense(8, activation='relu'),
+        tf.keras.layers.Dense(10)
     ])
 
     # loss func for classif
     loss_fn = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
 
     # loss func for regression
-    loss_fn = tf.keras.losses.MeanAbsoluteError()
-    loss_fn = tf.keras.losses.MeanSquaredError()
+    # loss_fn = tf.keras.losses.MeanAbsoluteError()
+    # loss_fn = tf.keras.losses.MeanSquaredError()
 
     model.compile(optimizer='adam', loss=loss_fn, metrics=['accuracy'])
 
@@ -96,7 +88,7 @@ for i in [4, 8, 12, 16, 20]:
 
     start = time()
     history = model.fit(
-        train_dataset, validation_data=test_dataset, epochs=200, verbose=0)
+        train_dataset, validation_data=test_dataset, epochs=400, verbose=0)
     os.system("cls")
 
     plt.clf()
@@ -111,11 +103,10 @@ for i in [4, 8, 12, 16, 20]:
     plt.legend(['train', 'test'], loc='upper left')
     # plt.show()
     # check if folder exists
-    if not os.path.exists('./images/8-'+str(i)+'-'+str(i) + '-'+str(i)):
-        os.makedirs('./images/8-'+str(i)+'-'+str(i) + '-'+str(i))
+    # if not os.path.exists('./images/8-'+str(i)+'-'+str(i) + '-'+str(i)):
+    #     os.makedirs('./images/8-'+str(i)+'-'+str(i) + '-'+str(i))
 
-    plt.savefig('./images/8-'+str(i)+'-'+str(i) + '-'+str(i) +
-                '/model accuracy(Mean Squared Error).png')
+    plt.savefig('./images/model accuracy(Mean Squared Error).png')
 
     plt.clf()
 
@@ -127,6 +118,5 @@ for i in [4, 8, 12, 16, 20]:
     plt.xlabel('epoch')
     plt.legend(['train', 'test'], loc='upper left')
     # plt.show()
-    plt.savefig('./images/8-'+str(i)+'-'+str(i) + '-'+str(i) +
-                '/Loss function(Mean Squared Error).png')
+    plt.savefig('./images/Loss function(Mean Squared Error).png')
     plt.clf()
